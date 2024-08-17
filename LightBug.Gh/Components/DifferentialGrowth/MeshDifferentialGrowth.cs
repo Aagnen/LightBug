@@ -1,11 +1,12 @@
 using System;
+using System.Drawing;
 using System.Collections.Generic;
 using Grasshopper;
 using Grasshopper.Kernel;
 using Rhino.Geometry;
 using LightBug.Core.DifferentialGrowth;
 
-namespace LightBug.Gh
+namespace LightBug.Gh.Components.DifferentialGrowth
 {
     public class MeshDifferentialGrowth : GH_Component
     {
@@ -19,7 +20,7 @@ namespace LightBug.Gh
         {
         }
 
-        protected override System.Drawing.Bitmap Icon => null;
+        //protected override System.Drawing.Bitmap Icon => null;
 
         public override Guid ComponentGuid => new Guid("0bc9e2cd-0684-40ce-a2b4-1aedb3c9f4be");
 
@@ -75,14 +76,14 @@ namespace LightBug.Gh
             if (iReset || myMeshGrowthSystem == null)
                 myMeshGrowthSystem = new MeshSystem(iStartingMesh);
 
-            myMeshGrowthSystem.Grow = iGrow;
-            myMeshGrowthSystem.MaxVertexCount = iMaxVertexCount;
-            myMeshGrowthSystem.EdgeLengthConstrainWeight = iEdgeLengthConstrainWeight;
-            myMeshGrowthSystem.CollisionWeight = iCollisionWeight;
-            myMeshGrowthSystem.BendingResistanceWeight = iBendingResistanceWeight;
-            myMeshGrowthSystem.CollisionDistance = iCollisionDistance;
+            //myMeshGrowthSystem.Grow = iGrow;
+            //myMeshGrowthSystem.MaxVertexCount = iMaxVertexCount;
+            //myMeshGrowthSystem.EdgeLengthConstrainWeight = iEdgeLengthConstrainWeight;
+            //myMeshGrowthSystem.CollisionWeight = iCollisionWeight;
+            //myMeshGrowthSystem.BendingResistanceWeight = iBendingResistanceWeight;
+            //myMeshGrowthSystem.CollisionDistance = iCollisionDistance;
 
-            myMeshGrowthSystem.Update();
+            //myMeshGrowthSystem.Update();
 
             DA.SetData("Mesh", myMeshGrowthSystem.GetRhinoMesh());
         }

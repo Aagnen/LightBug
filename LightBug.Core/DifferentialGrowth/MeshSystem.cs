@@ -39,26 +39,27 @@ namespace LightBug.Core.DifferentialGrowth
             double BendingResistanceWeight,
             ref object Mesh)
         {
-            if (Grow)
-                SplitAllLongEdges(MaxVertexCount, CollisionDistance);
+            //if (Grow)
+            //    SplitAllLongEdges(MaxVertexCount, CollisionDistance);
 
-            totalWeightedMoves = new List<Vector3d>();
-            totalWeights = new List<double>();
+            //totalWeightedMoves = new List<Vector3d>();
+            //totalWeights = new List<double>();
 
-            for (int i = 0; i < PlanktonMesh.Vertices.Count; i++)
-            {
-                totalWeightedMoves.Add(new Vector3d(0, 0, 0));
-                totalWeights.Add(0.0);
-            }
+            //for (int i = 0; i < PlanktonMesh.Vertices.Count; i++)
+            //{
+            //    totalWeightedMoves.Add(new Vector3d(0, 0, 0));
+            //    totalWeights.Add(0.0);
+            //}
 
-            ProcessCollisionsUsingRTree(CollisionDistance, CollisionWeight);
+            //ProcessCollisionsUsingRTree(CollisionDistance, CollisionWeight);
 
-            ProcessBendingResistance(BendingResistanceWeight);
-            ProcessEdgeLengthConstraint(CollisionDistance, EdgeLengthConstraintWeight);
+            //ProcessBendingResistance(BendingResistanceWeight);
+            //ProcessEdgeLengthConstraint(CollisionDistance, EdgeLengthConstraintWeight);
 
-            ProcessAttractor(Attractor, MaxDistFromAttractor);
+            //ProcessAttractor(Attractor, MaxDistFromAttractor);
 
-            UpdateVertexPositions();
-            Mesh = PlanktonMesh.ToRhinoMesh();
+            //UpdateVertexPositions();
+            //Mesh = PlanktonMesh.ToRhinoMesh();
         }
+    }
 }

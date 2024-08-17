@@ -7,7 +7,7 @@ namespace LightBug.Gh
 {
     public class LightBug_GhInfo : GH_AssemblyInfo
     {
-        public override string Name => "LightBug.Gh";
+        public override string Name => "LightBug";
 
         //Return a 24x24 pixel bitmap to represent this GHA library.
         //public override Bitmap Icon => null;
@@ -18,7 +18,7 @@ namespace LightBug.Gh
         public override Guid Id => new Guid("865be6ee-e822-4ace-a724-be100c310bea");
 
         //Return a string identifying you or your company.
-        public override string AuthorName => "";
+        public override string AuthorName => "Agnieszka Nowacka";
 
         //Return a string representing your preferred contact details.
         public override string AuthorContact => "";

@@ -1,25 +1,22 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	
   <PropertyGroup>
-    <TargetFrameworks>net48</TargetFrameworks>
+    <TargetFrameworks>net7.0</TargetFrameworks>
     <Version>1.0</Version>
     <Title>LightBug.Gh</Title>
     <Description>Description of LightBug.Gh</Description>
     <TargetExt>.gha</TargetExt>
-    <Authors>Agieszka Nowacka</Authors>
+    <Authors>Agnieszka Nowacka</Authors>
+    <BaseOutputPath></BaseOutputPath>
   </PropertyGroup>
 	
   <ItemGroup>
-    <PackageReference Include="Grasshopper" Version="8.6.24101.5001" />
-    <PackageReference Include="RhinoCommon" Version="8.6.24101.5001" />
+    <PackageReference Include="Grasshopper" Version="8.10.24226.13001" />
+    <PackageReference Include="RhinoCommon" Version="8.10.24226.13001" />
   </ItemGroup>
 	
   <ItemGroup>
     <ProjectReference Include="..\LightBug.Core\LightBug.Core.csproj" />
-  </ItemGroup>
-	
-  <ItemGroup>
-    <Folder Include="Components\DifferentialGrowth\" />
   </ItemGroup>
 
 </Project>
