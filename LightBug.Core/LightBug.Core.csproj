@@ -39,6 +39,12 @@
     <Reference Include="Eto, Version=2.8.0.0, Culture=neutral, PublicKeyToken=552281e97c755530, processorArchitecture=MSIL">
       <HintPath>..\packages\RhinoCommon.8.10.24226.13001\lib\net48\Eto.dll</HintPath>
     </Reference>
+    <Reference Include="Plankton">
+      <HintPath>..\..\..\..\AppData\Roaming\Grasshopper\Libraries\plankton-69\Plankton.dll</HintPath>
+    </Reference>
+    <Reference Include="PlanktonGh">
+      <HintPath>..\..\..\..\AppData\Roaming\Grasshopper\Libraries\plankton-69\PlanktonGh.dll</HintPath>
+    </Reference>
     <Reference Include="Rhino.UI, Version=8.10.24226.13001, Culture=neutral, PublicKeyToken=552281e97c755530, processorArchitecture=MSIL">
       <HintPath>..\packages\RhinoCommon.8.10.24226.13001\lib\net48\Rhino.UI.dll</HintPath>
     </Reference>
@@ -55,12 +61,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Class1.cs" />
+    <Compile Include="DifferentialGrowth\MeshSystem.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="DifferentialGrowth\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
