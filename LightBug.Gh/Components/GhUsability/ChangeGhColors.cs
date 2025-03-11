@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Drawing;
 using Grasshopper.Kernel;
-using Rhino.Geometry;
 
 namespace LightBug.Gh.Components.GhUsability
 {
@@ -19,6 +17,8 @@ namespace LightBug.Gh.Components.GhUsability
         }
 
         public override Guid ComponentGuid => new Guid("22CD3420-1211-4764-9A55-C881332F2A0A");
+
+        protected override Bitmap Icon => Properties.Resources.Components_ChangeGhColors;
 
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
@@ -68,9 +68,6 @@ namespace LightBug.Gh.Components.GhUsability
                     Grasshopper.GUI.Canvas.GH_Skin.wire_selected_a = wireStart;
                 if (wireEnd != Color.FromArgb(0, 0, 0, 0))
                     Grasshopper.GUI.Canvas.GH_Skin.wire_selected_b = wireEnd;
-                
-                //Grasshopper.GUI.Canvas.GH_Skin.canvas_edge = Color.FromArgb(255, 0, 0, 0);
-                //Grasshopper.GUI.Canvas.GH_Skin.canvas_shade = Color.FromArgb(80, 0, 0, 0);
             }
         }
     }

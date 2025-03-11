@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using Plankton; //AddReference to the project -> browse -> find file in Gh libraries
 using PlanktonGh;
 using Rhino.Geometry;
@@ -10,6 +6,11 @@ using Rhino.Geometry;
 
 namespace LightBug.Core.DifferentialGrowth
 {
+    /// <summary>
+    /// Inspired by: 
+    /// - "CSharp Scripting and Plugin Development for Grasshopper" tutorials by Long Nguyen
+    /// - "FloraForm" by n-e-r-v-o-u-s: Jessica Rosenkrantz and Jesse Louis-Rosenberg
+    /// </summary>
     public class MeshSystem
     {
         private PlanktonMesh planktonMesh = null;

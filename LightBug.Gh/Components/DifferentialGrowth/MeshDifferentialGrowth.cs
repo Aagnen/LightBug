@@ -1,7 +1,5 @@
 using System;
 using System.Drawing;
-using System.Collections.Generic;
-using Grasshopper;
 using Grasshopper.Kernel;
 using Rhino.Geometry;
 using LightBug.Core.DifferentialGrowth;
@@ -20,7 +18,7 @@ namespace LightBug.Gh.Components.DifferentialGrowth
         {
         }
 
-        //protected override System.Drawing.Bitmap Icon => null;
+        protected override Bitmap Icon => Properties.Resources.Components_MeshDifferentialGrowth;
 
         public override Guid ComponentGuid => new Guid("0bc9e2cd-0684-40ce-a2b4-1aedb3c9f4be");
 
