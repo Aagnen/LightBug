@@ -83,6 +83,16 @@ namespace LightBug.Gh.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap Components_TreatMissingComponents {
+            get {
+                object obj = ResourceManager.GetObject("Components_TreatMissingComponents", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap LightBugLogo {
             get {
                 object obj = ResourceManager.GetObject("LightBugLogo", resourceCulture);

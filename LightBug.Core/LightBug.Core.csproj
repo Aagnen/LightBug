@@ -61,7 +61,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DifferentialGrowth\MeshSystem.cs" />
+    <Compile Include="DifferentialGrowth\MeshDifferentialGrowth.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup />

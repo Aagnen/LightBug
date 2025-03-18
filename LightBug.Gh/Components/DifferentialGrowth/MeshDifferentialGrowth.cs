@@ -28,6 +28,7 @@ namespace LightBug.Gh.Components.DifferentialGrowth
             pManager.AddMeshParameter("StartingMesh", "M", "StartingMesh", GH_ParamAccess.item);
             pManager.AddBooleanParameter("Grow", "Grow", "Grow", GH_ParamAccess.item);
 
+            pManager.AddNumberParameter("EdgeLength", "EdgeLength", "", GH_ParamAccess.item);
             pManager.AddNumberParameter("EdgeLengthConstraintWeight", "EdgeLenWeight", "", GH_ParamAccess.item);
             pManager.AddNumberParameter("CollisionDistance", "CollDist", "", GH_ParamAccess.item);
             pManager.AddNumberParameter("CollisionWeight", "CollWeight", "", GH_ParamAccess.item);
@@ -44,7 +45,7 @@ namespace LightBug.Gh.Components.DifferentialGrowth
             pManager.AddMeshParameter("Mesh", "Mesh", "Mesh", GH_ParamAccess.item);
         }
 
-        private MeshSystem myMeshGrowthSystem;
+        private LightBug.Core.DifferentialGrowth.MeshDifferentialGrowth myMeshGrowthSystem;
 
         protected override void SolveInstance(IGH_DataAccess DA)
         {
@@ -52,6 +53,7 @@ namespace LightBug.Gh.Components.DifferentialGrowth
             Mesh iStartingMesh = null;
             bool iGrow = false;
 
+            double iEdgeLength = 0.0;
             double iEdgeLengthConstrainWeight = 0.0;
             double iCollisionDistance = 0.0;
             double iCollisionWeight = 0.0;
@@ -69,6 +71,8 @@ namespace LightBug.Gh.Components.DifferentialGrowth
             if (!DA.GetData("Grow", ref iGrow))
                 return;
 
+            if (!DA.GetData("EdgeLength", ref iEdgeLength))
+                return;
             if (!DA.GetData("EdgeLengthConstraintWeight", ref iEdgeLengthConstrainWeight))
                 return;
             if (!DA.GetData("CollisionDistance", ref iCollisionDistance))
@@ -84,24 +88,21 @@ namespace LightBug.Gh.Components.DifferentialGrowth
             DA.GetData("MaxVertexCount", ref iMaxVertexCount);
 
             if (iReset || myMeshGrowthSystem == null)
-                myMeshGrowthSystem = new MeshSystem(iStartingMesh);
+                myMeshGrowthSystem = new Core.DifferentialGrowth.MeshDifferentialGrowth(iStartingMesh);
 
-            if( iAttractor == Point3d.Unset || iMaxDistFromAttractor == 0)
-                myMeshGrowthSystem.Update(
-                    iGrow,
-                    iMaxVertexCount,
-                    (iCollisionDistance, iCollisionWeight),
-                    iEdgeLengthConstrainWeight,
-                    iBendingResistanceWeight,
-                    null);
+            (Point3d, double)? attractor;
+            if (iAttractor == Point3d.Unset || iMaxDistFromAttractor == 0)
+                attractor = null;
             else
-                myMeshGrowthSystem.Update(
-                    iGrow,
-                    iMaxVertexCount,
-                    (iCollisionDistance, iCollisionWeight),
-                    iEdgeLengthConstrainWeight,
-                    iBendingResistanceWeight,
-                    (iAttractor, iMaxDistFromAttractor));
+                attractor = (iAttractor, iMaxDistFromAttractor);
+
+            myMeshGrowthSystem.Update(
+                iGrow,
+                iMaxVertexCount,
+                (iCollisionDistance, iCollisionWeight),
+                (iEdgeLength, iEdgeLengthConstrainWeight),
+                iBendingResistanceWeight,
+                attractor);
 
             DA.SetData("Mesh", myMeshGrowthSystem.GetRhinoMesh());
         }

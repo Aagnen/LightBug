@@ -1,5 +1,8 @@
-﻿using System.Collections.Generic;
-using Plankton; //AddReference to the project -> browse -> find file in Gh libraries
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using Plankton; //Note: AddReference to the project -> browse -> find file in Gh libraries
 using PlanktonGh;
 using Rhino.Geometry;
 
@@ -7,67 +10,74 @@ using Rhino.Geometry;
 namespace LightBug.Core.DifferentialGrowth
 {
     /// <summary>
+    /// Implements differential growth on a mesh.
     /// Inspired by: 
     /// - "CSharp Scripting and Plugin Development for Grasshopper" tutorials by Long Nguyen
     /// - "FloraForm" by n-e-r-v-o-u-s: Jessica Rosenkrantz and Jesse Louis-Rosenberg
     /// </summary>
-    public class MeshSystem
+    public class MeshDifferentialGrowth
     {
-        private PlanktonMesh planktonMesh = null;
+        private PlanktonMesh planktonMesh;
 
+        // Accumulators for moves and weights computed per vertex.
         private List<Vector3d> totalWeightedMoves;
         private List<double> totalWeights;
 
-        public MeshSystem(Mesh startingMesh)
+        public MeshDifferentialGrowth(Mesh startingMesh)
         {
+            if (startingMesh == null || !startingMesh.IsValid)
+                throw new ArgumentNullException(nameof(startingMesh));
+
             planktonMesh = startingMesh.ToPlanktonMesh();
         }
 
-        public Mesh GetRhinoMesh()
+        /// <summary>
+        /// Returns the current state of the mesh as a Rhino Mesh.
+        /// </summary>
+        public Mesh GetRhinoMesh() => planktonMesh.ToRhinoMesh();
+
+        public void Update(
+            bool grow,
+            int maxVertexCount,
+            (double Dist, double Weight) collision,
+            (double DesiredDist, double Weight) edgeLength,
+            double bendingResistanceWeight,
+            (Point3d Pt, double MaxDist)? attractor = null)
         {
-            return planktonMesh.ToRhinoMesh();
-        }
+            if (grow)
+                SplitLongEdges(maxVertexCount, edgeLength.DesiredDist);
 
-        public Mesh Update(
-            bool Grow,
-            int MaxVertexCount,
-            (double Dist, double Weight) Collision,
-            double EdgeLengthConstraintWeight,
-            double BendingResistanceWeight,
-            (Point3d Pt, double maxDist)? Attractor = null)
-        {
-            if (Grow)
-                SplitAllLongEdges(MaxVertexCount, Collision.Dist);
+            InitializeAccumulators(planktonMesh.Vertices.Count);
 
-            totalWeightedMoves = new List<Vector3d>();
-            totalWeights = new List<double>();
+            ProcessCollisions(collision.Dist, collision.Weight);
+            ProcessBendingResistance(bendingResistanceWeight);
 
-            for (int i = 0; i < planktonMesh.Vertices.Count; i++)
-            {
-                totalWeightedMoves.Add(new Vector3d(0, 0, 0));
-                totalWeights.Add(0.0);
-            }
+            if (!grow)
+                ProcessEdgeLengthConstraint(edgeLength.DesiredDist, edgeLength.Weight);
 
-            ProcessCollisionsUsingRTree(Collision.Dist, Collision.Weight);
-
-            ProcessBendingResistance(BendingResistanceWeight);
-            ProcessEdgeLengthConstraint(Collision.Dist, EdgeLengthConstraintWeight);
-
-            if (Attractor.HasValue)
-                ProcessAttractor(Attractor.Value.Pt, Attractor.Value.maxDist);
+            if (attractor.HasValue)
+                ProcessAttractor(attractor.Value.Pt, attractor.Value.MaxDist);
 
             UpdateVertexPositions();
-
-            return planktonMesh.ToRhinoMesh();
         }
 
-        private void ProcessCollisionsUsingRTree(double CollisionDistance, double CollisionWeight)
+        private void InitializeAccumulators(int vertexCount)
+        {
+            totalWeightedMoves = Enumerable.Range(0, vertexCount)
+                                           .Select(_ => Vector3d.Zero)
+                                           .ToList();
+            totalWeights = Enumerable.Repeat(0.0, vertexCount).ToList();
+        }
+
+        private void ProcessCollisions(double CollisionDistance, double CollisionWeight)
         {
             RTree rTree = new RTree();
 
+            // Insert each vertex into the RTree.
             for (int i = 0; i < planktonMesh.Vertices.Count; i++)
                 rTree.Insert(planktonMesh.Vertices[i].ToPoint3d(), i);
 
+            // Process collisions between vertex pairs.
             for (int i = 0; i < planktonMesh.Vertices.Count; i++)
             {
                 Point3d vI = planktonMesh.Vertices[i].ToPoint3d();
@@ -77,7 +87,10 @@ namespace LightBug.Core.DifferentialGrowth
 
                 rTree.Search(
                     searchSphere, // whenever finds something in the sphere
-                    (sender, args) => { if (i < args.Id) collisionIndices.Add(args.Id); }); //do this
+                    (sender, args) => { 
+                        if (i < args.Id) 
+                            collisionIndices.Add(args.Id); 
+                    }); //do this
 
                 foreach (int j in collisionIndices)
                 {
@@ -94,25 +107,35 @@ namespace LightBug.Core.DifferentialGrowth
             }
         }
 
-        private void ProcessEdgeLengthConstraint(double CollisionDistance, double EdgeLengthConstrainWeight)
+        /// <summary>
+        /// Edges act as springs that try to keep their desired length
+        /// </summary>
+        /// <param name="EdgeLength"></param>
+        /// <param name="EdgeLengthConstrainWeight"></param>
+        private void ProcessEdgeLengthConstraint(double EdgeLength, double EdgeLengthConstrainWeight)
         {
+            double edgeLengthSqr = EdgeLength * EdgeLength;
+
             for (int k = 0; k < planktonMesh.Halfedges.Count; k += 2)
             {
-                int i = planktonMesh.Halfedges[k].StartVertex;
-                int j = planktonMesh.Halfedges[k + 1].StartVertex;
+                int a = planktonMesh.Halfedges[k].StartVertex;
+                int b = planktonMesh.Halfedges[k + 1].StartVertex;
 
-                Point3d vI = planktonMesh.Vertices[i].ToPoint3d();
-                Point3d vj = planktonMesh.Vertices[j].ToPoint3d();
+                Point3d va = planktonMesh.Vertices[a].ToPoint3d();
+                Point3d vb = planktonMesh.Vertices[b].ToPoint3d();
 
-                if (vI.DistanceTo(vj) < CollisionDistance) continue;
+                Vector3d move;
+                if (va.DistanceToSquared(vb) < edgeLengthSqr) 
+                    move = vb - va;
+                else
+                    move = va - vb;
 
-                Vector3d move = vj - vI;
-                move *= (move.Length - CollisionDistance) * 0.5 / move.Length;
+                move *= (move.Length - EdgeLength) * 0.5 / move.Length;
 
-                totalWeightedMoves[i] += move * EdgeLengthConstrainWeight;
-                totalWeightedMoves[j] += -move * EdgeLengthConstrainWeight;
-                totalWeights[i] += EdgeLengthConstrainWeight;
-                totalWeights[j] += EdgeLengthConstrainWeight;
+                totalWeightedMoves[a] += move * EdgeLengthConstrainWeight;
+                totalWeightedMoves[b] += -move * EdgeLengthConstrainWeight;
+                totalWeights[a] += EdgeLengthConstrainWeight;
+                totalWeights[b] += EdgeLengthConstrainWeight;
             }
         }
 
@@ -176,7 +199,7 @@ namespace LightBug.Core.DifferentialGrowth
             }
         }
 
-        private void SplitAllLongEdges(int MaxVertexCount, double CollisionDistance)
+        private void SplitLongEdges(int MaxVertexCount, double CollisionDistance)
         {
             int halfEdgeCount = planktonMesh.Halfedges.Count;
 
